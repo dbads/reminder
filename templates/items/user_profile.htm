@@ -1,0 +1,140 @@
+{% extends 'items/base.html' %}
+
+    {% block body %}
+    <div class="card">
+        <div class="card-header text-center" data-background-color="blue">
+            <h5 class="title text-center">Bucket List</h5>
+        </div>
+        <br>
+        <div class="card-content">
+            <div class="row">
+                <!-- <br><br> -->
+                <div class="col col-md-6 col-md-offset-2">
+                    <span style="text-align: center; margin-left: 50px; color: crimson;">User current location, e.g 2,4 (lattitude and logitude)</span>
+                    <form action="{% url 'profile' %}" method="POST" id='shop_search_form'>
+                        {% csrf_token %}
+                        <input type="text" name="location" id="location" style="text-align: center; margin-left: 50px;">
+                         <button type="submit" class="btn btn-sm btn-primary">Search shops</button>
+                    </form>
+                    <br>
+                    
+                        <div style="margin-left: 30px;">
+                            <p>Hey, You need following items available in following nearby shops which have exhausted, why not to get them when you are around :))</p>
+                            
+                            <li style="font-weight: bold; list-style:none; margin-left: 20px;"> <span style="color: blue"> Shop owner </span> : <span style="color: blueviolet"> Items available </span></li>    
+                            <ul id='nearby_shops' style="font-weight: 15px; list-style:number;">
+                                <li>No Items in your Bucket List available nearby :(</li>
+                            </ul>
+                        </div>
+                    
+                </div>
+                <div class="col col-md-6 col-md-offset-2" style="border-left:5px #00cc0a;padding-left:4px">
+                    <span style="text-align: center; margin-left: 40px; color: rgb(255, 0, 179);">Items to be purchased</span>
+                    <ul>
+                        {% if items_to_purchase %}
+                            <p>Oh No! I need following items :(</p>
+                            <ul>
+                                {% for item in items_to_purchase %}
+                                    <li>{{item.item_name}}</li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>hurrah, I have all necessary things in house :)</p>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            <br><br>
+            <hr>
+            <div class="row">
+
+                <div class="col col-md-4 col-md-offset-2" style="">
+                    Way to Shop 1 :)<br>
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m26!1m12!1m3!1d7012.376911556226!2d77.06760317423023!3d28.50397722987457!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m11!3e6!4m3!3m2!1d28.4993649!2d77.0784043!4m5!1s0x390d197a42c1ad4f%3A0x6e74def83d090b74!2sSector+22%2C+Gurugram%2C+Haryana!3m2!1d28.507240999999997!2d77.06404859999999!5e0!3m2!1sen!2sin!4v1564210583548!5m2!1sen!2sin" width="300" height="250" frameborder="0" style="border:0" allowfullscreen></iframe>
+                </div>
+
+                <div class="col col-md-4" style="border-right:5px #cc0022;padding-left:4px">
+                    Way to Shop 2 :)<br>
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m26!1m12!1m3!1d28048.317490807272!2d77.07027441897051!3d28.508453677862764!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m11!3e6!4m3!3m2!1d28.4993649!2d77.0784043!4m5!1s0x390d1938456789c7%3A0x45a757aa37e73026!2sAmbience+Mall%2C+Gurgaon%2C+Ambience+Island%2C+Gurugram%2C+Haryana!3m2!1d28.5047829!2d77.0969784!5e0!3m2!1sen!2sin!4v1564210613622!5m2!1sen!2sin" width="300" height="250" frameborder="0" style="border:0" allowfullscreen></iframe>
+                </div>
+
+                <div class="col col-md-4" style="border:5px #ccb800;padding-left:4px">
+                     Way to Shop 3 :)<br>
+                     <iframe src="https://www.google.com/maps/embed?pb=!1m26!1m12!1m3!1d2784.2065406515353!2d77.08387921466246!3d28.51401574670883!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m11!3e6!4m3!3m2!1d28.4993649!2d77.0784043!4m5!1s0x390d1938456789c7%3A0x45a757aa37e73026!2sambience+mall!3m2!1d28.5047829!2d77.0969784!5e0!3m2!1sen!2sin!4v1564210528307!5m2!1sen!2sin" width="300" height="250" frameborder="0" style="border:0" allowfullscreen></iframe>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Hey There,
+    You have shops nearby to purchase items in your bucket? -->
+
+{% endblock body %}
+
+
+{% block js %}
+
+    <script>
+        $("#location").on('keyup',function(event){
+            var location = $('#location').val();
+            // console.log('var'+location);
+            // var form = $('#shop_search_form')
+                if(location.length==3){
+
+                    $.ajax({
+                        url: 'profile',
+                        type: 'POST',
+                        data: $('#shop_search_form').serialize(),
+                    })
+                    .done(function(res) {
+                        var response_data = JSON.parse(res);
+                        if (response_data) {
+                            console.log('res ',response_data);
+                            $('#nearby_shops').empty();
+                            for(let key in response_data){
+                                //Do stuff where key would be 0 and value would be the object
+                                    $('#nearby_shops').append('<li><span style="color: blue">' + key +'</span> : <span style="color: blueviolet">'+ response_data[key] + '</span></li>');
+                                }
+                        }
+                        else {
+                            console.log('failed')
+                        }
+                    })
+                    .fail(function() {
+                        console.log('error occured')
+                    })
+                    
+                }else{
+                    console.log('wrong input')
+                }
+        });
+
+    </script>
+
+    <script>
+            function initialize() {
+              var myLatlng = new google.maps.LatLng(-34.397, 150.644);
+              var myOptions = {
+                zoom: 8,
+                center: myLatlng,
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+              }
+              var map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+            }
+        
+            function loadScript() {
+              var script = document.createElement("script");
+              script.type = "text/javascript";
+              script.src = "http://maps.google.com/maps/api/js?sensor=false&callback=initialize";
+              document.body.appendChild(script);
+            }
+        
+            window.onload = loadScript;
+        
+        
+        </script>
+{% endblock js %}
+
+
+
